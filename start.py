@@ -1,57 +1,41 @@
-import csv
-from faker import Faker
-import random
+import re
 
-fake = Faker('uk_UA')
+def read_first_sentence(filename):
+    """Зчитує перше речення з файлу та повертає його."""
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            text = file.read()
+            sentences = re.split(r'[.!?]', text)
+            first_sentence = sentences[0].strip()
+            return first_sentence
+    except FileNotFoundError:
+        print("Помилка: файл не знайдено.")
+        return None
+    except Exception as e:
+        print(f"Сталася помилка: {e}")
+        return None
 
-male_patronymics = [
-    'Юрійович', 'Васильович', 'Григорович', 'Олександрович', 'Павлович',
-    'Романович', 'Сергійович', 'Миколайович', 'Євгенович', 'Іванович',
-    'Федорович', 'Ярославович', 'Дмитрович', 'Віталійович', 'Андрійович',
-    'Богданович', 'Вікторович', 'Леонідович', 'Володимирович', 'Петрович'
-]
+def sort_words(text):
+    """Сортує слова в алфавітному порядку та повертає окремо українські та англійські слова."""
+    words = re.findall(r'\b\w+\b', text.lower())  # Знаходимо всі слова, ігноруючи пунктуацію
+    ukrainian_words = sorted([word for word in words if re.match(r'[а-яА-ЯїЇєЄіІґҐ]', word)])
+    english_words = sorted([word for word in words if re.match(r'[a-zA-Z]', word)])
+    return ukrainian_words, english_words
 
-female_patronymics = [
-    'Юріївна', 'Василівна', 'Григорівна', 'Олександрівна', 'Павлівна',
-    'Романівна', 'Сергіївна', 'Миколаївна', 'Євгенівна', 'Іванівна',
-    'Федорівна', 'Ярославівна', 'Дмитрівна', 'Віталіївна', 'Андріївна',
-    'Богданівна', 'Вікторівна', 'Леонідівна', 'Володимирівна', 'Петрівна'
-]
+def main():
+    filename = 'text.txt'
+    first_sentence = read_first_sentence(filename)
+    
+    if first_sentence:
+        print("Перше речення:", first_sentence)
+        
+        ukrainian_words, english_words = sort_words(first_sentence)
+        all_sorted_words = ukrainian_words + english_words
+        
+        print("\nСлова відсортовані по алфавіту (спочатку українські, потім англійські):")
+        print(all_sorted_words)
+        
+        print("\nЗагальна кількість слів:", len(all_sorted_words))
 
-gender_map = {
-    'male': 'Чоловіча',
-    'female': 'Жіноча'
-}
-
-# Відсоткове співвідношення чоловіків та жінок
-male_ratio = 0.6
-female_ratio = 0.4
-total_entries = 2000
-
-# Генеруємо дані для співробітника
-def create_employee():
-    gender = random.choices(['male', 'female'], [male_ratio, female_ratio])[0]
-    first_name = fake.first_name_male() if gender == 'male' else fake.first_name_female()
-    last_name = fake.last_name()
-    patronymic = random.choice(male_patronymics if gender == 'male' else female_patronymics)
-    birth_date = fake.date_of_birth(minimum_age=16, maximum_age=85)
-    role = fake.job()
-    residence_city = fake.city()
-    residence_address = fake.address()
-    contact_phone = fake.phone_number()
-    contact_email = fake.email()
-
-    return [last_name, first_name, patronymic, gender_map[gender], birth_date, role, residence_city, residence_address, contact_phone, contact_email]
-
-# Створення CSV файлу з даними
-with open('employees.csv', mode='w', newline='', encoding='utf-8') as csvfile:
-    csv_writer = csv.writer(csvfile)
-    csv_writer.writerow([
-        'Прізвище', 'Ім’я', 'По батькові', 'Стать', 'Дата народження', 
-        'Посада', 'Місто проживання', 'Адреса проживання', 'Телефон', 'Email'
-    ])
-
-    for _ in range(total_entries):
-        csv_writer.writerow(create_employee())
-
-print("Файл CSV успішно згенеровано!")
+if __name__ == "__main__":
+    main()
