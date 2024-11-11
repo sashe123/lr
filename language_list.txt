@@ -1,0 +1,3 @@
+N   Language             ISO-639 code Text                          
+-----------------------------------------------------------------
+1   Afrikaans            af         Begroetings                   
