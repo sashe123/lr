@@ -1,0 +1,9 @@
+{
+    "TextFile": "input_text.txt",
+    "Language": "de",
+    "Output": "file",
+    "MinChars": 600,
+    "MaxChars": 1000,
+    "MaxWords": 180,
+    "MaxSentences": 20
+}
